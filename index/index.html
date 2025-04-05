@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Device Fingerprinting Demo</title>
+</head>
+<body>
+  <h1>Device Fingerprinting Test</h1>
+  <pre id="output">Collecting...</pre>
+
+  <script>
+    function getCanvasFingerprint() {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+  
+      ctx.textBaseline = "top";
+      ctx.font = "16px Arial";
+      ctx.fillStyle = "#f60";
+      ctx.fillRect(0, 0, 100, 30);
+      ctx.fillStyle = "#069";
+      ctx.fillText("Canvas Fingerprint Test!", 2, 2);
+  
+      // Get image data as base64
+      const dataUrl = canvas.toDataURL();
+      return dataUrl;
+    }
+  
+    async function getFingerprintData() {
+      const data = {
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        screenResolution: `${screen.width}x${screen.height}`,
+        colorDepth: screen.colorDepth,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        platform: navigator.platform,
+        deviceMemory: navigator.deviceMemory || 'unknown',
+        hardwareConcurrency: navigator.hardwareConcurrency || 'unknown',
+        canvasFingerprint: getCanvasFingerprint()
+      };
+  
+      const res = await fetch('/fingerprint', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data),
+      });
+  
+      const result = await res.json();
+      document.getElementById('output').textContent = JSON.stringify(result, null, 2);
+    }
+  
+    getFingerprintData();
+  </script>
+  
+</body>
+</html>
